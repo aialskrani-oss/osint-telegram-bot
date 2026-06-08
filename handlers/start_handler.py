@@ -1,66 +1,70 @@
-"""
-Start and help command handlers.
-"""
-from telegram import Update
+"""Start and help handlers — Arabic/English bilingual."""
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes
 
-LEGAL_DISCLAIMER = """
-⚠️ *Legal & Ethical Notice*
-
-This bot is for *educational and research purposes only*.
-It only searches publicly available data sources.
-
-• Do NOT use this bot to harass, stalk, or harm anyone
-• Do NOT use results for illegal purposes
-• All searches are logged for abuse prevention
-• Users violating these terms will be permanently banned
-
-By using this bot, you agree to these terms.
-"""
+DISCLAIMER = (
+    "⚠️ *تحذير قانوني وأخلاقي*\n\n"
+    "• هذا البوت يبحث في *البيانات المتاحة للعموم فقط*\n"
+    "• لا تستخدمه لمضايقة أو تتبع أي شخص\n"
+    "• جميع عمليات البحث مسجّلة لمنع الإساءة\n"
+    "• المخالفون سيتم حظرهم نهائياً\n\n"
+    "_باستخدامك لهذا البوت فأنت توافق على هذه الشروط_"
+)
 
 HELP_TEXT = """
-🔍 *OSINT Bot - Command Reference*
+🔍 *بوت OSINT — دليل الأوامر*
 
-*Search Commands:*
-/search\\_username `<username>` — Search across 3000+ sites
-/search\\_email `<email>` — Find linked accounts & breaches  
-/search\\_phone `<number>` — Carrier info & social accounts
-/search\\_name `<first> <last>` — Search by real name
-/search\\_social `<platform> <id>` — Search specific platform
-/search\\_location `<country/region>` — Region-specific results
-/advanced\\_search — Multi-criteria search mode
+━━━━━━━━ *أوامر البحث* ━━━━━━━━
+/search\_username `<اليوزرنيم>` — بحث في 50+ موقع
+/search\_email `<الإيميل>` — حسابات مرتبطة وتسريبات
+/search\_phone `<الرقم>` — معلومات المشغل والموقع
+/search\_name `<الاسم الأول> <الأخير>` — بحث بالاسم الحقيقي
+/search\_social `<المنصة> <المعرّف>` — بحث في منصة محددة
+/search\_location `<البلد>` — أدوات OSINT حسب البلد
+/advanced\_search — بحث متقدم بعدة معايير
 
-*Report Commands:*
-/report `txt` — Export last results as text
-/report `html` — Export last results as HTML
-/report `pdf` — Export last results as PDF
+━━━━━━━━ *أوامر التقارير* ━━━━━━━━
+/report `txt` — تصدير التاريخ نصياً
+/report `html` — تصدير بصيغة HTML
+/report `pdf` — تصدير بصيغة PDF
 
-*Platforms for search\\_social:*
-`facebook`, `instagram`, `telegram`, `twitter`, `linkedin`
+━━━━━━━━ *أوامر عامة* ━━━━━━━━
+/status — حالة البوت والإحصائيات
+/cancel — إلغاء البحث الجاري
+/help — عرض هذه القائمة
 
-*Examples:*
-`/search_username johndoe`
-`/search_email user@example.com`
-`/search_phone +1234567890`
-`/search_name John Doe`
-`/search_social instagram johndoe`
-`/search_location Germany`
+━━━━━━━━ *المنصات المدعومة* ━━━━━━━━
+`github` `reddit` `instagram` `twitter`
+`facebook` `telegram` `tiktok` `linkedin`
 
-*Rate Limit:* 5 searches per minute per user
+⚡ *حد الاستخدام:* 5 بحث/دقيقة لكل مستخدم
 """
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
+    keyboard = [
+        [InlineKeyboardButton("📖 دليل الأوامر", callback_data="help"),
+         InlineKeyboardButton("📊 الإحصائيات", callback_data="status")],
+        [InlineKeyboardButton("🔍 بحث باليوزرنيم", switch_inline_query_current_chat="")]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
     text = (
-        f"👋 Welcome, *{user.first_name}*!\n\n"
-        "I'm an advanced *OSINT Bot* — I can search for publicly available "
-        "information across thousands of sources.\n\n"
-        f"{LEGAL_DISCLAIMER}\n\n"
-        "Use /help to see all available commands."
+        f"👋 مرحباً *{user.first_name}*!\n\n"
+        "🔍 أنا *بوت OSINT* متخصص في البحث عن المعلومات المتاحة للعموم "
+        "عبر آلاف المواقع والمصادر المفتوحة.\n\n"
+        f"{DISCLAIMER}\n\n"
+        "اضغط على /help لعرض جميع الأوامر المتاحة."
     )
-    await update.message.reply_text(text, parse_mode="Markdown", disable_web_page_preview=True)
+    await update.message.reply_text(
+        text, parse_mode="Markdown",
+        reply_markup=reply_markup,
+        disable_web_page_preview=True
+    )
 
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(HELP_TEXT, parse_mode="Markdown", disable_web_page_preview=True)
+    await update.message.reply_text(
+        HELP_TEXT, parse_mode="Markdown", disable_web_page_preview=True
+    )

@@ -1,208 +1,149 @@
-# 🔍 OSINT Telegram Bot
+# 🔍 بوت OSINT للتيلغرام
 
-A professional, fully-featured OSINT (Open Source Intelligence) Telegram bot that searches for publicly available information across thousands of sources. Supports 6 search types, report generation, rate limiting, and 24/7 deployment on Render.
+بوت تيلغرام احترافي متخصص في استخبارات المصادر المفتوحة (OSINT) — يبحث عن البيانات المتاحة للعموم عبر آلاف المواقع والمصادر.
 
----
+<div dir="rtl">
 
-## ⚠️ Legal & Ethical Notice
+## ⚠️ تحذير قانوني وأخلاقي
 
-This bot is for **educational and research purposes only**.
+- هذا البوت **للأغراض التعليمية والبحثية فقط**
+- يبحث في البيانات **المتاحة للعموم فقط**
+- لا يُسمح باستخدامه لمضايقة أو تتبع الأشخاص
+- المخالفون سيتم حظرهم نهائياً
 
-- Only searches **publicly available** data sources
-- Does **not** store sensitive data permanently
-- Users can be banned for misuse
-- Comply with the laws of your jurisdiction when using this tool
+## ✨ الميزات
 
----
+| الميزة | التفاصيل |
+|--------|----------|
+| بحث باليوزرنيم | 50+ موقع يتم فحصها بالتوازي |
+| بحث بالإيميل | Holehe + Gravatar + GitHub |
+| بحث برقم الهاتف | PhoneInfoga + فحص واتساب |
+| بحث بالاسم | اكتشاف الملفات الشخصية العامة |
+| بحث في منصات | GitHub، Reddit، إنستغرام، تيك توك، إلخ |
+| بحث حسب البلد | دليل أدوات OSINT لـ 8+ دول |
+| بحث متقدم | عدة معايير دفعة واحدة |
+| تقارير | PDF، HTML، TXT |
+| إحصائيات | أمر /status يعرض كل شيء |
+| وضع Inline | بحث سريع من أي محادثة |
+| تحديد معدل | 5 بحث/دقيقة لكل مستخدم |
+| نظام الحظر | أوامر إدارية لحظر المسيئين |
+| تخزين مؤقت | SQLite لمدة 24 ساعة |
 
-## ✨ Features
-
-| Feature | Details |
-|---|---|
-| Username Search | 50+ sites checked in parallel |
-| Email Search | Holehe-style service checks + Gravatar + GitHub |
-| Phone Search | PhoneInfoga + carrier/location lookup |
-| Name Search | Public profile discovery |
-| Social Search | GitHub, Reddit, Instagram, Telegram, TikTok, etc. |
-| Location Filter | Region-specific OSINT resource directory (8+ countries) |
-| Advanced Search | Multi-criteria parallel search with flags |
-| Reports | Export as TXT, HTML, or PDF |
-| Inline Mode | Quick search directly from any chat |
-| Rate Limiting | 5 searches/minute per user |
-| Ban System | Admin commands to ban/unban abusers |
-| Search Cache | 24-hour SQLite cache to avoid redundant lookups |
-| Search History | Per-user history stored in SQLite |
-
----
-
-## 🤖 Bot Commands
+## 🤖 الأوامر المتاحة
 
 ```
-/start              — Welcome message & legal notice
-/help               — Full command reference
+/start                          — رسالة الترحيب
+/help                           — دليل الأوامر
+/status                         — حالة البوت والإحصائيات
+/cancel                         — إلغاء البحث الجاري
 
-/search_username <username>           — Search 50+ sites for username
-/search_email <email>                 — Find linked accounts & data breaches
-/search_phone <number>                — Carrier, region, WhatsApp check
-/search_name <first> <last>           — Real name profile discovery
-/search_social <platform> <id>        — Search specific social platform
-/search_location <country>            — OSINT resources by country
-/advanced_search -u <u> -e <e> ...    — Multi-criteria search
+/search_username <يوزرنيم>      — بحث في 50+ موقع
+/search_email <إيميل>           — حسابات مرتبطة وتسريبات
+/search_phone <رقم>             — معلومات المشغّل والموقع
+/search_name <الاسم الأول> <الأخير>  — بحث بالاسم الحقيقي
+/search_social <منصة> <معرّف>   — بحث في منصة محددة
+/search_location <بلد>          — أدوات OSINT حسب البلد
+/advanced_search -u <u> -e <e>  — بحث متقدم بعدة معايير
 
-/report txt|html|pdf                  — Export your search history
-
-/ban <user_id> [reason]               — (Admin) Ban a user
-/unban <user_id>                      — (Admin) Unban a user
-/banned                               — (Admin) List banned users
+/report txt|html|pdf            — تصدير سجل البحث
+/ban <معرّف> [سبب]              — (مشرف) حظر مستخدم
+/unban <معرّف>                  — (مشرف) رفع حظر
+/banned                         — (مشرف) قائمة المحظورين
 ```
 
-**Inline Mode:** Type `@YourBotUsername <query>` in any chat for quick search suggestions.
+</div>
 
 ---
 
-## 🚀 Deployment on Render
+## 🚀 النشر على Render (مجاني)
 
-### Prerequisites
-- Render account: https://render.com
-- GitHub account (bot code pushed to a repo)
-- Telegram Bot Token from @BotFather
+### المتطلبات
+- حساب GitHub (لديك بالفعل)
+- حساب Render: https://render.com
 
-### Step-by-step
+### الخطوات
 
-1. **Push to GitHub** (already done via the agent's GitHub push)
+1. **سجّل دخول إلى Render:** https://dashboard.render.com
 
-2. **Create a new Render Worker:**
-   - Go to https://dashboard.render.com
-   - Click **New → Background Worker**
-   - Connect your GitHub repository
-   - Select the `osint-bot` folder as the root directory (or set **Root Directory** to `osint-bot`)
+2. **أنشئ Web Service جديداً:**
+   - **New → Web Service**
+   - اربط مستودع GitHub: `aialskrani-oss/osint-telegram-bot`
 
-3. **Configure the service:**
-   - **Runtime:** Python 3
-   - **Build Command:** `pip install -r requirements-core.txt`
-   - **Start Command:** `python bot.py`
+3. **إعدادات الخدمة:**
+   ```
+   Runtime:       Python 3
+   Build Command: pip install -r requirements-core.txt
+   Start Command: gunicorn --bind 0.0.0.0:$PORT --workers 1 --timeout 120 bot_webhook:flask_app
+   Plan:          Free
+   ```
 
-4. **Set Environment Variables** in Render dashboard:
-   | Key | Value |
-   |---|---|
-   | `TELEGRAM_BOT_TOKEN` | Your bot token from BotFather |
-   | `ADMIN_IDS` | Your Telegram user ID (get it from @userinfobot) |
-   | `DB_PATH` | `/opt/render/project/src/osint_bot.db` |
+4. **متغيرات البيئة:**
+   | المتغير | القيمة |
+   |---------|--------|
+   | `TELEGRAM_BOT_TOKEN` | توكن البوت من BotFather |
+   | `WEBHOOK_SECRET` | `osint_secure_path_2025` |
+   | `DB_PATH` | `/tmp/osint_bot.db` |
 
-5. **Add a Disk** (for SQLite persistence):
-   - In the service settings, add a disk
-   - **Mount path:** `/opt/render/project/src`
-   - **Size:** 1 GB (free tier)
-
-6. **Deploy!** Click **Create Background Worker**
-
-The bot will start polling automatically. Check the Render logs to confirm it's running.
+5. **بعد النشر — فعّل الـ Webhook (مرة واحدة):**
+   ```
+   https://YOUR-APP.onrender.com/set_webhook
+   ```
 
 ---
 
-## 🛠 Local Development
+## 💻 التشغيل المحلي
 
 ```bash
-# Clone the repository
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
-cd YOUR_REPO/osint-bot
+git clone https://github.com/aialskrani-oss/osint-telegram-bot.git
+cd osint-telegram-bot
 
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
 pip install -r requirements-core.txt
 
-# Configure environment
-cp .env.example .env
-# Edit .env and set TELEGRAM_BOT_TOKEN
+# أنشئ ملف .env
+echo "TELEGRAM_BOT_TOKEN=YOUR_TOKEN_HERE" > .env
 
-# Run the bot
 python bot.py
 ```
 
 ---
 
-## 📁 Project Structure
+## 📁 هيكل المشروع
 
 ```
-osint-bot/
-├── bot.py                    # Main entry point
-├── requirements.txt          # Full deps (includes optional OSINT tools)
-├── requirements-core.txt     # Minimal deps for Render deployment
-├── render.yaml               # Render deployment config
-├── Procfile                  # Heroku-compatible start command
-├── .env.example              # Environment variable template
-├── .gitignore                # Excludes secrets & databases
-│
-├── handlers/                 # One file per search type
-│   ├── start_handler.py      # /start, /help
-│   ├── username_handler.py   # /search_username
-│   ├── email_handler.py      # /search_email
-│   ├── phone_handler.py      # /search_phone
-│   ├── name_handler.py       # /search_name
-│   ├── social_handler.py     # /search_social
-│   ├── location_handler.py   # /search_location
-│   ├── advanced_handler.py   # /advanced_search
-│   ├── report_handler.py     # /report
-│   ├── inline_handler.py     # Inline mode
-│   └── admin_handler.py      # /ban, /unban, /banned
-│
+osint-telegram-bot/
+├── bot.py                    # نقطة الدخول — وضع Polling (Replit)
+├── bot_webhook.py            # وضع Webhook (Render / PythonAnywhere)
+├── requirements-core.txt     # المكتبات الأساسية
+├── requirements.txt          # المكتبات الكاملة (تشمل Holehe/Maigret)
+├── render.yaml               # إعدادات النشر على Render
+├── runtime.txt               # إصدار Python
+├── Procfile                  # أمر التشغيل
+├── .env.example              # قالب متغيرات البيئة
+├── handlers/                 # معالج لكل نوع بحث
+│   ├── start_handler.py
+│   ├── username_handler.py
+│   ├── email_handler.py
+│   ├── phone_handler.py
+│   ├── name_handler.py
+│   ├── social_handler.py
+│   ├── location_handler.py
+│   ├── advanced_handler.py
+│   ├── report_handler.py
+│   ├── inline_handler.py
+│   ├── admin_handler.py
+│   ├── status_handler.py
+│   └── cancel_handler.py
 ├── middleware/
-│   ├── rate_limiter.py       # 5 requests/minute limit
-│   └── ban_checker.py        # Blocks banned users
-│
+│   ├── rate_limiter.py       # 5 طلبات/دقيقة
+│   └── ban_checker.py        # فحص الحظر
 ├── database/
-│   └── db.py                 # SQLite: cache, history, bans, rate limits
-│
+│   └── db.py                 # SQLite — تخزين مؤقت، سجل، حظر
 └── utils/
-    └── formatters.py         # Result formatting helpers
+    └── formatters.py         # تنسيق الرسائل بالعربية
 ```
 
 ---
 
-## 🔧 Optional Enhanced Tools
+## 📄 الترخيص
 
-Install these for more powerful searches (may require additional setup):
-
-```bash
-# Holehe - email to accounts
-pip install holehe
-
-# Maigret - advanced username search (3000+ sites)
-pip install maigret
-
-# PhoneInfoga - advanced phone lookup
-pip install phoneinfoga
-```
-
----
-
-## 📊 Architecture
-
-```
-User → Telegram → Bot (python-telegram-bot)
-                    ├── Middleware (ban check → rate limit)
-                    ├── Handler (search logic + aiohttp)
-                    ├── Cache check (SQLite)
-                    ├── External APIs / web scraping
-                    └── Formatter → Telegram message
-```
-
----
-
-## 🔒 Security
-
-- All tokens stored as environment variables (never in code)
-- Rate limiting prevents abuse (5 req/min)
-- Admin ban system for policy violators
-- Search history for audit trail
-- No permanent storage of sensitive personal data
-- `.gitignore` excludes all `.env` and `.db` files
-
----
-
-## 📝 License
-
-MIT License — use responsibly.
+MIT License — استخدم بمسؤولية.

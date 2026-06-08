@@ -1,6 +1,4 @@
-"""
-Admin commands: ban/unban users.
-"""
+"""Admin commands — Arabic UI."""
 import os
 import logging
 from telegram import Update
@@ -14,63 +12,59 @@ ADMIN_IDS = set(int(x.strip()) for x in ADMIN_IDS_RAW.split(",") if x.strip().is
 
 
 def is_admin(user_id: int) -> bool:
-    return user_id in ADMIN_IDS or not ADMIN_IDS  # If no admins set, first user can admin
+    return not ADMIN_IDS or user_id in ADMIN_IDS
 
 
 async def ban_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    if not is_admin(user.id):
-        await update.message.reply_text("❌ You don't have permission to use this command.")
+    if not is_admin(update.effective_user.id):
+        await update.message.reply_text("❌ ليس لديك صلاحية لاستخدام هذا الأمر.")
         return
-
     if not context.args:
-        await update.message.reply_text("Usage: /ban `<user_id> [reason]`", parse_mode="Markdown")
+        await update.message.reply_text(
+            "❌ *الاستخدام:* `/ban <معرّف المستخدم> [السبب]`", parse_mode="Markdown"
+        )
         return
-
     try:
         target_id = int(context.args[0])
-        reason = " ".join(context.args[1:]) if len(context.args) > 1 else "Policy violation"
-        ban_user_db(target_id, reason, user.id)
+        reason = " ".join(context.args[1:]) if len(context.args) > 1 else "انتهاك شروط الاستخدام"
+        ban_user_db(target_id, reason, update.effective_user.id)
         await update.message.reply_text(
-            f"🚫 User `{target_id}` has been banned.\nReason: {reason}",
+            f"🚫 تم حظر المستخدم `{target_id}`\n📋 السبب: {reason}",
             parse_mode="Markdown"
         )
-        logger.warning("User %s banned %s for: %s", user.id, target_id, reason)
+        logger.warning("Admin %s banned %s: %s", update.effective_user.id, target_id, reason)
     except ValueError:
-        await update.message.reply_text("❌ Invalid user ID. Must be a number.")
+        await update.message.reply_text("❌ معرّف المستخدم يجب أن يكون رقماً.")
 
 
 async def unban_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    if not is_admin(user.id):
-        await update.message.reply_text("❌ You don't have permission to use this command.")
+    if not is_admin(update.effective_user.id):
+        await update.message.reply_text("❌ ليس لديك صلاحية لاستخدام هذا الأمر.")
         return
-
     if not context.args:
-        await update.message.reply_text("Usage: /unban `<user_id>`", parse_mode="Markdown")
+        await update.message.reply_text(
+            "❌ *الاستخدام:* `/unban <معرّف المستخدم>`", parse_mode="Markdown"
+        )
         return
-
     try:
         target_id = int(context.args[0])
         unban_user_db(target_id)
-        await update.message.reply_text(f"✅ User `{target_id}` has been unbanned.", parse_mode="Markdown")
+        await update.message.reply_text(
+            f"✅ تم رفع الحظر عن المستخدم `{target_id}`", parse_mode="Markdown"
+        )
     except ValueError:
-        await update.message.reply_text("❌ Invalid user ID.")
+        await update.message.reply_text("❌ معرّف المستخدم يجب أن يكون رقماً.")
 
 
 async def list_banned(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user = update.effective_user
-    if not is_admin(user.id):
-        await update.message.reply_text("❌ You don't have permission to use this command.")
+    if not is_admin(update.effective_user.id):
+        await update.message.reply_text("❌ ليس لديك صلاحية لاستخدام هذا الأمر.")
         return
-
     banned = get_banned_users()
     if not banned:
-        await update.message.reply_text("✅ No banned users.")
+        await update.message.reply_text("✅ لا يوجد مستخدمون محظورون حالياً.")
         return
-
-    lines = ["🚫 *Banned Users:*\n"]
+    lines = ["🚫 *قائمة المستخدمين المحظورين:*\n"]
     for b in banned:
-        lines.append(f"• ID: `{b['user_id']}` — {b['reason']} ({b['banned_at'][:10]})")
-
+        lines.append(f"• `{b['user_id']}` — {b['reason']} ({b['banned_at'][:10]})")
     await update.message.reply_text("\n".join(lines), parse_mode="Markdown")
