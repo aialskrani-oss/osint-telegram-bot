@@ -58,16 +58,16 @@ def get_ptb_app():
         from handlers.inline_handler import inline_query
         from handlers.admin_handler import ban_user, unban_user, list_banned
         from handlers.start_handler import start, help_command
-        from handlers.status_handler import bot_status
-        from handlers.cancel_handler import cancel
+        from handlers.status_handler import status_command
+        from handlers.cancel_handler import cancel_command
         from database.db import init_db
 
         init_db()
         app = Application.builder().token(TOKEN).updater(None).build()
         app.add_handler(CommandHandler("start", start))
         app.add_handler(CommandHandler("help", help_command))
-        app.add_handler(CommandHandler("status", bot_status))
-        app.add_handler(CommandHandler("cancel", cancel))
+        app.add_handler(CommandHandler("status", status_command))
+        app.add_handler(CommandHandler("cancel", cancel_command))
         app.add_handler(CommandHandler("search_username", search_username))
         app.add_handler(CommandHandler("search_email", search_email))
         app.add_handler(CommandHandler("search_phone", search_phone))
