@@ -1,0 +1,19 @@
+services:
+  - type: worker
+    name: osint-telegram-bot
+    runtime: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements-core.txt
+    startCommand: python bot.py
+    envVars:
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: ADMIN_IDS
+        sync: false
+      - key: DB_PATH
+        value: /opt/render/project/src/osint_bot.db
+    disk:
+      name: bot-data
+      mountPath: /opt/render/project/src
+      sizeGB: 1
