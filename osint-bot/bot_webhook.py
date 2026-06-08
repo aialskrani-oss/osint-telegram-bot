@@ -11,10 +11,10 @@ import sys
 import logging
 import asyncio
 
-# Ensure the osint-bot directory is on the Python path (needed on Render)
-_HERE = os.path.dirname(os.path.abspath(__file__))
-if _HERE not in sys.path:
-    sys.path.insert(0, _HERE)
+# Ensure the working directory (rootDir on Render) is on the Python path
+for _p in [os.getcwd(), os.path.dirname(os.path.abspath(__file__))]:
+    if _p and _p not in sys.path:
+        sys.path.insert(0, _p)
 
 from flask import Flask, request, abort, jsonify
 from telegram import Update
