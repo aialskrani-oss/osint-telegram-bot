@@ -1,19 +1,17 @@
 services:
-  - type: worker
+  - type: web
     name: osint-telegram-bot
     runtime: python
     region: oregon
     plan: free
     buildCommand: pip install -r requirements-core.txt
-    startCommand: python bot.py
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --timeout 120 bot_webhook:flask_app
     envVars:
       - key: TELEGRAM_BOT_TOKEN
         sync: false
-      - key: ADMIN_IDS
-        sync: false
+      - key: WEBHOOK_SECRET
+        value: osint_secure_path_2025
       - key: DB_PATH
-        value: /opt/render/project/src/osint_bot.db
-    disk:
-      name: bot-data
-      mountPath: /opt/render/project/src
-      sizeGB: 1
+        value: /tmp/osint_bot.db
+      - key: PYTHON_VERSION
+        value: 3.11.0
