@@ -1,0 +1,10 @@
+# Install these in PythonAnywhere bash console:
+# pip3.10 install -r requirements-pythonanywhere.txt --user
+python-telegram-bot==20.7
+aiohttp==3.9.3
+flask==3.0.2
+requests==2.31.0
+beautifulsoup4==4.12.3
+lxml==5.1.0
+reportlab==4.1.0
+python-dotenv==1.0.1
