@@ -7,8 +7,15 @@ After deployment, visit:
 to register the webhook with Telegram.
 """
 import os
+import sys
 import logging
 import asyncio
+
+# Ensure the osint-bot directory is on the Python path (needed on Render)
+_HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+
 from flask import Flask, request, abort, jsonify
 from telegram import Update
 from telegram.ext import (
