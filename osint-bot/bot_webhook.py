@@ -96,6 +96,17 @@ def health():
     })
 
 
+@flask_app.route("/debug", methods=["GET"])
+def debug_paths():
+    import glob
+    return jsonify({
+        "cwd": os.getcwd(),
+        "file": __file__,
+        "sys_path": sys.path[:6],
+        "cwd_contents": sorted(os.listdir(os.getcwd()))[:20],
+    })
+
+
 @flask_app.route("/webhook/<path:secret>", methods=["POST"])
 def webhook(secret):
     if secret != WEBHOOK_SECRET:
