@@ -1,11 +1,9 @@
 python-telegram-bot==20.7
 aiohttp==3.9.3
+flask==3.0.2
+gunicorn==21.2.0
 requests==2.31.0
 beautifulsoup4==4.12.3
 lxml==5.1.0
 reportlab==4.1.0
-pandas==2.2.1
-holehe==1.16
-maigret==0.4.4
-phoneinfoga==2.11.0
 python-dotenv==1.0.1
