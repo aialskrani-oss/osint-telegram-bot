@@ -7,25 +7,20 @@ After deployment, visit:
 to register the webhook with Telegram.
 """
 import os
+import sys
 import logging
 import asyncio
+
+# Ensure the working directory (rootDir on Render) is on the Python path
+for _p in [os.getcwd(), os.path.dirname(os.path.abspath(__file__))]:
+    if _p and _p not in sys.path:
+        sys.path.insert(0, _p)
+
 from flask import Flask, request, abort, jsonify
 from telegram import Update
 from telegram.ext import (
     Application, CommandHandler, InlineQueryHandler
 )
-from handlers.username_handler import search_username
-from handlers.email_handler import search_email
-from handlers.phone_handler import search_phone
-from handlers.name_handler import search_name
-from handlers.social_handler import search_social
-from handlers.location_handler import search_location
-from handlers.advanced_handler import advanced_search
-from handlers.report_handler import generate_report
-from handlers.inline_handler import inline_query
-from handlers.admin_handler import ban_user, unban_user, list_banned
-from handlers.start_handler import start, help_command
-from database.db import init_db
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -52,10 +47,27 @@ def get_loop():
 def get_ptb_app():
     global _ptb_app
     if _ptb_app is None:
+        from handlers.username_handler import search_username
+        from handlers.email_handler import search_email
+        from handlers.phone_handler import search_phone
+        from handlers.name_handler import search_name
+        from handlers.social_handler import search_social
+        from handlers.location_handler import search_location
+        from handlers.advanced_handler import advanced_search
+        from handlers.report_handler import generate_report
+        from handlers.inline_handler import inline_query
+        from handlers.admin_handler import ban_user, unban_user, list_banned
+        from handlers.start_handler import start, help_command
+        from handlers.status_handler import bot_status
+        from handlers.cancel_handler import cancel
+        from database.db import init_db
+
         init_db()
         app = Application.builder().token(TOKEN).updater(None).build()
         app.add_handler(CommandHandler("start", start))
         app.add_handler(CommandHandler("help", help_command))
+        app.add_handler(CommandHandler("status", bot_status))
+        app.add_handler(CommandHandler("cancel", cancel))
         app.add_handler(CommandHandler("search_username", search_username))
         app.add_handler(CommandHandler("search_email", search_email))
         app.add_handler(CommandHandler("search_phone", search_phone))
@@ -71,30 +83,8 @@ def get_ptb_app():
         loop = get_loop()
         loop.run_until_complete(app.initialize())
         _ptb_app = app
-        logger.info("PTB app initialized with token ending ...%s", TOKEN[-6:])
+        logger.info("PTB app initialized (token ends …%s)", TOKEN[-6:] if TOKEN else "N/A")
     return _ptb_app
-
-
-# Initialize on startup
-with flask_app.app_context():
-    try:
-        get_ptb_app()
-    except Exception as e:
-        logger.error("Startup init failed: %s", e)
-
-
-@flask_app.route(f"/webhook/{WEBHOOK_SECRET}", methods=["POST"])
-def webhook():
-    if request.content_type != "application/json":
-        abort(415)
-    try:
-        data = request.get_json(force=True)
-        update = Update.de_json(data, get_ptb_app().bot)
-        get_loop().run_until_complete(get_ptb_app().process_update(update))
-        return "ok", 200
-    except Exception as e:
-        logger.error("Webhook error: %s", e)
-        return "error", 500
 
 
 @flask_app.route("/", methods=["GET"])
@@ -102,27 +92,54 @@ def health():
     return jsonify({
         "status": "running",
         "bot": "OSINT Telegram Bot",
-        "webhook": f"/webhook/{WEBHOOK_SECRET}"
+        "version": "2.0"
     })
+
+
+@flask_app.route("/debug", methods=["GET"])
+def debug_paths():
+    import glob
+    return jsonify({
+        "cwd": os.getcwd(),
+        "file": __file__,
+        "sys_path": sys.path[:6],
+        "cwd_contents": sorted(os.listdir(os.getcwd()))[:20],
+    })
+
+
+@flask_app.route("/webhook/<path:secret>", methods=["POST"])
+def webhook(secret):
+    if secret != WEBHOOK_SECRET:
+        abort(403)
+    if request.content_type != "application/json":
+        abort(415)
+    try:
+        data = request.get_json(force=True)
+        ptb = get_ptb_app()
+        update = Update.de_json(data, ptb.bot)
+        get_loop().run_until_complete(ptb.process_update(update))
+        return "ok", 200
+    except Exception as e:
+        logger.error("Webhook error: %s", e)
+        return "error", 500
 
 
 @flask_app.route("/set_webhook", methods=["GET"])
 def set_webhook():
-    """Visit this URL once after deploying to activate the bot."""
     scheme = request.headers.get("X-Forwarded-Proto", "https")
     host = request.host
     webhook_url = f"{scheme}://{host}/webhook/{WEBHOOK_SECRET}"
     try:
+        ptb = get_ptb_app()
         loop = get_loop()
-        app = get_ptb_app()
 
         async def _set():
-            await app.bot.delete_webhook()
-            await app.bot.set_webhook(
+            await ptb.bot.delete_webhook()
+            await ptb.bot.set_webhook(
                 url=webhook_url,
                 allowed_updates=["message", "inline_query", "callback_query"]
             )
-            return await app.bot.get_webhook_info()
+            return await ptb.bot.get_webhook_info()
 
         info = loop.run_until_complete(_set())
         return jsonify({
@@ -132,6 +149,7 @@ def set_webhook():
             "last_error": str(info.last_error_message) if info.last_error_message else None
         })
     except Exception as e:
+        logger.error("set_webhook error: %s", e)
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
@@ -144,7 +162,6 @@ def delete_webhook():
         return jsonify({"status": "error", "message": str(e)}), 500
 
 
-# Gunicorn / PythonAnywhere WSGI entry point
 application = flask_app
 
 if __name__ == "__main__":
